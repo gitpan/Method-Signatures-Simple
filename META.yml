@@ -1,6 +1,6 @@
 ---
 name: Method-Signatures-Simple
-version: 0.01_01
+version: 0.02
 author:
   - 'Rhesa Rozendaal <rhesa@cpan.org>'
 abstract: 'Basic method declarations with signatures, without source filters'
@@ -8,14 +8,13 @@ license: perl
 resources:
   license: http://dev.perl.org/licenses/
 requires:
-  Devel::Declare: 0.002002
-  Devel::Declare::MethodInstaller::Simple: 0
+  Devel::Declare: 0.003001
 build_requires:
   Test::More: 0
 provides:
   Method::Signatures::Simple:
     file: lib/Method/Signatures/Simple.pm
-    version: 0.01_01
+    version: 0.02
 generated_by: Module::Build version 0.280801
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html

@@ -11,8 +11,7 @@ my $builder = Module::Build->new(
         'Test::More' => 0,
     },
     requires => {
-        'Devel::Declare' => 0.002002,
-        'Devel::Declare::MethodInstaller::Simple' => 0,
+        'Devel::Declare' => '0.003001',
     },
     add_to_cleanup      => [ 'Method-Signatures-Simple-*' ],
     create_makefile_pl => 'traditional',

@@ -3,7 +3,17 @@ package Method::Signatures::Simple;
 use warnings;
 use strict;
 
-our $VERSION = '0.01_01';
+our $VERSION = '0.02';
+
+=head1 NAME
+
+Method::Signatures::Simple - Basic method declarations with signatures, without source filters
+
+=head1 VERSION
+
+Version 0.02
+
+=cut
 
 use base q/Devel::Declare::MethodInstaller::Simple/;
 
@@ -26,7 +36,7 @@ sub parse_proto {
     $proto =~ s/[\r\n]//g;
     my $invocant = $self->{invocant};
 
-    $invocant = $1 if $proto =~ s{^(.*):\s*}{};
+    $invocant = $1 if $proto =~ s{^(\$\w+):\s*}{};
 
     my $inject = "my ${invocant} = shift;";
     $inject .= "my ($proto) = \@_;" if defined $proto and length $proto;
@@ -34,14 +44,6 @@ sub parse_proto {
     return $inject;
 }
 
-
-=head1 NAME
-
-Method::Signatures::Simple - Basic method declarations with signatures, without source filters
-
-=head1 VERSION
-
-Version 0.01
 
 =head1 SYNOPSIS
 

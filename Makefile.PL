@@ -9,8 +9,7 @@ WriteMakefile
           'VERSION_FROM' => 'lib/Method/Signatures/Simple.pm',
           'PREREQ_PM' => {
                            'Test::More' => 0,
-                           'Devel::Declare::MethodInstaller::Simple' => 0,
-                           'Devel::Declare' => '0.002002'
+                           'Devel::Declare' => '0.003001'
                          }
         )
 ;
