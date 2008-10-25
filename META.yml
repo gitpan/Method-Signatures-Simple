@@ -1,6 +1,6 @@
 ---
 name: Method-Signatures-Simple
-version: 0.02
+version: 0.03
 author:
   - 'Rhesa Rozendaal <rhesa@cpan.org>'
 abstract: 'Basic method declarations with signatures, without source filters'
@@ -14,7 +14,7 @@ build_requires:
 provides:
   Method::Signatures::Simple:
     file: lib/Method/Signatures/Simple.pm
-    version: 0.02
+    version: 0.03
 generated_by: Module::Build version 0.280801
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html
