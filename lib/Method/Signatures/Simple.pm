@@ -1,9 +1,9 @@
 package Method::Signatures::Simple;
+our $VERSION = '0.05';
+
 
 use warnings;
 use strict;
-
-our $VERSION = '0.03';
 
 =head1 NAME
 
@@ -11,7 +11,7 @@ Method::Signatures::Simple - Basic method declarations with signatures, without 
 
 =head1 VERSION
 
-Version 0.03
+version 0.05
 
 =cut
 
