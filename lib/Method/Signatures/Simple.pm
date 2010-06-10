@@ -1,6 +1,7 @@
 package Method::Signatures::Simple;
-our $VERSION = '0.05';
-
+BEGIN {
+  $Method::Signatures::Simple::VERSION = '0.06';
+}
 
 use warnings;
 use strict;
@@ -11,7 +12,7 @@ Method::Signatures::Simple - Basic method declarations with signatures, without 
 
 =head1 VERSION
 
-version 0.05
+version 0.06
 
 =cut
 
@@ -96,6 +97,52 @@ argument handling.
 
 =back
 
+=head1 ADVANCED CONFIGURATION
+
+Since this module subclasses L<Devel::Declare::MethodInstaller::Simple>, you can change the
+keyword and the default invocant with import arguments. These changes affect the current scope.
+
+=over 4
+
+=item * change the invocant name
+
+    use Method::Signatures::Simple invocant => '$this';
+    method x { $this->{x} }
+    method y { $this->{y} }
+    
+    # and this of course still works:
+    method z ($self:) { $self->{z} }
+
+=item * change the keyword
+
+You can install a different keyword (instead of the default 'method'), by passing a name to the
+C<use> line:
+
+    use Method::Signatures::Simple name => 'action';
+    
+    action foo ($some, $args) { ... }
+    
+One benefit of this is that you can use this module together with e.g. L<MooseX::Declare>:
+
+    # untested
+    use MooseX::Declare;
+    
+    class Foo {
+        use Method::Signatures::Simple name => 'routine';
+        method x (Int $x) { ... }    # uses MooseX::Method::Signatures
+        routine y ($y) { ... }       # uses this module
+    }
+
+=item * install several keywords
+
+You're not limited to a single C<use> line, so you can install several keywords with the same
+semantics as 'method' into the current scope:
+
+    use Method::Signatures::Simple; # provides 'method'
+    use Method::Signatures::Simple name => 'action';
+    
+    method x { ... }
+    action do_y { ... }
 
 =begin pod-coverage
 
