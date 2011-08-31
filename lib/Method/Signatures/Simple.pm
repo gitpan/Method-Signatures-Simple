@@ -1,6 +1,6 @@
 package Method::Signatures::Simple;
 BEGIN {
-  $Method::Signatures::Simple::VERSION = '0.06';
+  $Method::Signatures::Simple::VERSION = '1.00';
 }
 
 use warnings;
@@ -12,7 +12,7 @@ Method::Signatures::Simple - Basic method declarations with signatures, without 
 
 =head1 VERSION
 
-version 0.06
+version 1.00
 
 =cut
 
@@ -21,13 +21,32 @@ use base q/Devel::Declare::MethodInstaller::Simple/;
 sub import {
     my $class = shift;
     my %opts  = @_;
-    $opts{into}     ||= caller;
-    $opts{invocant} ||= '$self';
+    $opts{into} ||= caller;
 
-    $class->install_methodhandler(
-      name => 'method',
-      %opts,
-    );
+    my $meth = delete $opts{name} || delete $opts{method_keyword};
+    my $func = delete $opts{function_keyword};
+
+    # if no options are provided at all, then we supply defaults
+    unless (defined $meth || defined $func) {
+        $meth = 'method';
+        $func = 'func';
+    }
+
+    # we only install keywords that are requested
+    if (defined $meth) {
+        $class->install_methodhandler(
+        name     => $meth,
+        invocant => '$self',
+        %opts,
+        );
+    }
+    if (defined $func) {
+        $class->install_methodhandler(
+          name     => $func,
+          %opts,
+          invocant => undef,
+        );
+    }
 }
 
 sub parse_proto {
@@ -39,7 +58,7 @@ sub parse_proto {
 
     $invocant = $1 if $proto =~ s{^(\$\w+):\s*}{};
 
-    my $inject = "my ${invocant} = shift;";
+    my $inject = "my ${invocant} = shift;" if $invocant;
     $inject .= "my ($proto) = \@_;" if defined $proto and length $proto;
 
     return $inject;
@@ -48,27 +67,54 @@ sub parse_proto {
 
 =head1 SYNOPSIS
 
+    # -- a basic class -- #
+    package User;
     use Method::Signatures::Simple;
 
-    method foo { $self->bar }
-
-    # with signature
-    method foo($bar, %opts) {
-        $self->bar(reverse $bar) if $opts{rev};
+    method new ($class: $name, $email) {
+        my $user = {
+            id    => new_id(42),
+            name  => $name,
+            email => $email,
+        };
+        bless $user, $class;
     }
 
+    func new_id ($seed) {
+        state $id = $seed;
+        $id++;
+    }
+
+    method name  { $self->{name};  }
+    method email { $self->{email}; }
+    1;
+
+
+    # -- other features -- #
     # attributes
     method foo : lvalue { $self->{foo} }
 
     # change invocant name
-    method foo ($class: $bar) { $class->bar($bar) }
+    use Method::Signatures::Simple invocant => '$this';
+    method foo ($bar) { $this->bar($bar) }
+    method bar ($class: $bar) { $class->baz($bar) }
+
+    # use a different function keyword
+    use Method::Signatures::Simple function_keyword => 'fun';
+    fun triple ($num) { 3 * $num }
+
+    # use a different method keyword
+    use Method::Signatures::Simple method_keyword => 'action';
+    action foo { $self->bar }
 
 =head1 RATIONALE
 
-This module provides a basic C<method> keyword with simple signatures. It's intentionally simple,
-and is supposed to be a stepping stone for its bigger brothers L<MooseX::Method::Signatures> and L<Method::Signatures>.
-It only has a small benefit over regular subs, so if you want more features, look at those modules.
-But if you're looking for a small amount of syntactic sugar, this might just be enough.
+This module provides basic C<method> and C<func> keywords with simple
+signatures. It's intentionally simple, and is supposed to be a stepping stone
+for its bigger brothers L<MooseX::Method::Signatures> and
+L<Method::Signatures>.  It only has a small benefit over regular subs, so
+if you want more features, look at those modules.  But if you're looking
+for a small amount of syntactic sugar, this might just be enough.
 
 =head1 FEATURES
 
@@ -76,18 +122,25 @@ But if you're looking for a small amount of syntactic sugar, this might just be 
 
 =item * invocant
 
-The C<method> keyword automatically injects the annoying C<my $self = shift;> for you. You can rename
-the invocant with the first argument, followed by a colon:
+The C<method> keyword automatically injects the annoying C<my $self = shift;>
+for you. You can rename the invocant with the first argument, followed by a
+colon:
 
     method ($this:) {}
     method ($this: $that) {}
 
+The C<func> keyword doesn't inject an invocant, but does do the signature
+processing below:
+
+    func ($that) {}
+
 =item * signature
 
-The signature C<($sig)> is transformed into C<"my ($sig) = \@_;">. That way, we mimic perl's usual
-argument handling.
+The signature C<($sig)> is transformed into C<"my ($sig) = \@_;">. That way, we
+mimic perl's usual argument handling.
 
     method foo ($bar, $baz, %opts) {
+    func xyzzy ($plugh, @zorkmid) {
 
     # becomes
 
@@ -95,12 +148,16 @@ argument handling.
         my $self = shift;
         my ($bar, $baz, %opts) = @_;
 
+    sub xyzzy {
+        my ($plugh, @zorkmid) = @_;
+
 =back
 
 =head1 ADVANCED CONFIGURATION
 
-Since this module subclasses L<Devel::Declare::MethodInstaller::Simple>, you can change the
-keyword and the default invocant with import arguments. These changes affect the current scope.
+Since this module subclasses L<Devel::Declare::MethodInstaller::Simple>, you
+can change the keywords and the default invocant with import arguments. These
+changes affect the current scope.
 
 =over 4
 
@@ -109,40 +166,65 @@ keyword and the default invocant with import arguments. These changes affect the
     use Method::Signatures::Simple invocant => '$this';
     method x { $this->{x} }
     method y { $this->{y} }
-    
+
     # and this of course still works:
     method z ($self:) { $self->{z} }
 
-=item * change the keyword
+=item * change the keywords
 
-You can install a different keyword (instead of the default 'method'), by passing a name to the
-C<use> line:
+You can install a different keyword (instead of the default 'method' and
+'func'), by passing names to the C<use> line:
 
-    use Method::Signatures::Simple name => 'action';
-    
+    use Method::Signatures::Simple method_keyword   => 'action',
+                                   function_keyword => 'thing';
+
     action foo ($some, $args) { ... }
-    
-One benefit of this is that you can use this module together with e.g. L<MooseX::Declare>:
+    thing bar ($whatever) { ... }
+
+One benefit of this is that you can use this module together with e.g.
+L<MooseX::Declare>:
 
     # untested
     use MooseX::Declare;
-    
+
     class Foo {
-        use Method::Signatures::Simple name => 'routine';
-        method x (Int $x) { ... }    # uses MooseX::Method::Signatures
-        routine y ($y) { ... }       # uses this module
+        use Method::Signatures::Simple method_keyword => 'routine';
+        method x (Int $x) { ... }    # from MooseX::Method::Signatures
+        routine y ($y) { ... }       # from this module
     }
+
+If you specify neither C<method_keyword> nor C<function_keyword>, then we
+default to injecting C<method> and C<func>. If you only specify one of these
+options, then we only inject that one keyword into your scope.
+
+Examples:
+
+    # injects 'method' and 'func'
+    use Method::Signatures::Simple;
+
+    # only injects 'action'
+    use Method::Signatures::Simple method_keyword => 'action';
+
+    # only injects 'procedure'
+    use Method::Signatures::Simple function_keyword => 'procedure';
+
+    # injects 'action' and 'function'
+    use Method::Signatures::Simple method_keyword   => 'action',
+                                   function_keyword => 'function';
 
 =item * install several keywords
 
 You're not limited to a single C<use> line, so you can install several keywords with the same
 semantics as 'method' into the current scope:
 
-    use Method::Signatures::Simple; # provides 'method'
-    use Method::Signatures::Simple name => 'action';
-    
+    use Method::Signatures::Simple; # provides 'method' and 'func'
+    use Method::Signatures::Simple method_keyword => 'action';
+
     method x { ... }
-    action do_y { ... }
+    func y { ... }
+    action z { ... }
+
+=back
 
 =begin pod-coverage
 
