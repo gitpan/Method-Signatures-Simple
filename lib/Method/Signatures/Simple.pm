@@ -1,6 +1,6 @@
 package Method::Signatures::Simple;
 BEGIN {
-  $Method::Signatures::Simple::VERSION = '1.01';
+  $Method::Signatures::Simple::VERSION = '1.02';
 }
 
 use warnings;
@@ -12,7 +12,7 @@ Method::Signatures::Simple - Basic method declarations with signatures, without 
 
 =head1 VERSION
 
-version 1.01
+version 1.02
 
 =cut
 
@@ -58,8 +58,9 @@ sub parse_proto {
 
     $invocant = $1 if $proto =~ s{^(\$\w+):\s*}{};
 
-    my $inject = "my ${invocant} = shift;" if $invocant;
-    $inject .= "my ($proto) = \@_;" if defined $proto and length $proto;
+    my $inject = '';
+    $inject .= "my ${invocant} = shift;" if $invocant;
+    $inject .= "my ($proto) = \@_;"      if defined $proto and length $proto;
 
     return $inject;
 }
