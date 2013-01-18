@@ -9,22 +9,22 @@ use ExtUtils::MakeMaker 6.30;
 
 
 my %WriteMakefileArgs = (
-  'ABSTRACT' => 'Basic method declarations with signatures, without source filters',
-  'AUTHOR' => 'Rhesa Rozendaal <rhesa@cpan.org>',
-  'BUILD_REQUIRES' => {},
-  'CONFIGURE_REQUIRES' => {
-    'ExtUtils::MakeMaker' => '6.30'
+  "ABSTRACT" => "Basic method declarations with signatures, without source filters",
+  "AUTHOR" => "Rhesa Rozendaal <rhesa\@cpan.org>",
+  "BUILD_REQUIRES" => {},
+  "CONFIGURE_REQUIRES" => {
+    "ExtUtils::MakeMaker" => "6.30"
   },
-  'DISTNAME' => 'Method-Signatures-Simple',
-  'EXE_FILES' => [],
-  'LICENSE' => 'perl',
-  'NAME' => 'Method::Signatures::Simple',
-  'PREREQ_PM' => {
-    'Devel::Declare' => '0.003001'
+  "DISTNAME" => "Method-Signatures-Simple",
+  "EXE_FILES" => [],
+  "LICENSE" => "perl",
+  "NAME" => "Method::Signatures::Simple",
+  "PREREQ_PM" => {
+    "Devel::Declare" => "0.003001"
   },
-  'VERSION' => '1.02',
-  'test' => {
-    'TESTS' => 't/*.t'
+  "VERSION" => "1.05",
+  "test" => {
+    "TESTS" => "t/*.t"
   }
 );
 
