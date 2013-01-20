@@ -16,4 +16,4 @@ requires:
   Devel::Declare: 0.003001
 resources:
   repository: http://github.com/rhesa/method-signatures-simple
-version: 1.05
+version: 1.07

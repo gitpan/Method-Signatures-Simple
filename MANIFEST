@@ -13,6 +13,7 @@ t/03-config.t
 t/RT80505.t
 t/RT80507.t
 t/RT80508.t
+t/RT80510.t
 t/release-pod-coverage.t
 t/release-pod-syntax.t
 xt/boilerplate.t
